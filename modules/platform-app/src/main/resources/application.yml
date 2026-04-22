@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: trend-burada-platform-app
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}
+  cloud:
+    config:
+      fail-fast: false
+      profile: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trend_burada_app}
+    username: ${SPRING_DATASOURCE_USERNAME:trend}
+    password: ${SPRING_DATASOURCE_PASSWORD:trend}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:false}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  architecture:
+    mode: modular-monolith
+    ai-boundary: external-python-service-ready
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  auth:
+    verification:
+      code-length: ${AUTH_VERIFICATION_CODE_LENGTH:6}
+      expiry-minutes: ${AUTH_VERIFICATION_EXPIRY_MINUTES:10}
+      sender-name: ${AUTH_VERIFICATION_SENDER_NAME:TrendBurada}
+      sender-email: ${AUTH_VERIFICATION_SENDER_EMAIL:no-reply@trendburada.local}
+    keycloak:
+      base-url: ${KEYCLOAK_BASE_URL:http://localhost:8081}
+      realm: ${KEYCLOAK_REALM:trend-burada}
+      admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+      admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+      client-id: ${KEYCLOAK_CLIENT_ID:trend-burada-web}
+      client-secret: ${KEYCLOAK_CLIENT_SECRET:}
+      direct-grant-type: password

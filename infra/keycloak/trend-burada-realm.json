@@ -1,0 +1,31 @@
+{
+  "realm": "trend-burada",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Default customer role"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "trend-burada-web",
+      "name": "TrendBurada Web",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "+"
+      ]
+    }
+  ]
+}
