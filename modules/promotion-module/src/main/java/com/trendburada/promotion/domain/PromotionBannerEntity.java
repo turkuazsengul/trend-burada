@@ -31,7 +31,7 @@ public class PromotionBannerEntity {
     private String blockType;
 
     @Column
-    private int sortOrder;
+    private Integer sortOrder;
 
     @Column(nullable = false, length = 255)
     private String targetPath;
@@ -80,11 +80,11 @@ public class PromotionBannerEntity {
         this.blockType = blockType;
     }
 
-    public int getSortOrder() {
+    public Integer getSortOrder() {
         return sortOrder;
     }
 
-    public void setSortOrder(int sortOrder) {
+    public void setSortOrder(Integer sortOrder) {
         this.sortOrder = sortOrder;
     }
 

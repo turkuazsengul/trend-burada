@@ -56,7 +56,7 @@ public class PromotionQueryService {
                 entity.getImageUrl(),
                 entity.getTargetPath(),
                 normalizeBlockType(entity.getBlockType()),
-                entity.getSortOrder()
+                resolveSortOrder(entity)
         );
     }
 
@@ -67,7 +67,7 @@ public class PromotionQueryService {
                 entity.getDescription(),
                 entity.getImageUrl(),
                 entity.getTargetPath(),
-                entity.getSortOrder()
+                resolveSortOrder(entity)
         );
     }
 
@@ -76,5 +76,9 @@ public class PromotionQueryService {
             return "CAMPAIGN";
         }
         return blockType.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private int resolveSortOrder(PromotionBannerEntity entity) {
+        return entity.getSortOrder() == null ? Integer.MAX_VALUE : entity.getSortOrder();
     }
 }
