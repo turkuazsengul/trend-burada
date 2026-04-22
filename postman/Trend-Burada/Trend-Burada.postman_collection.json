@@ -1,0 +1,433 @@
+{
+  "info": {
+    "_postman_id": "cb30d1b8-0f8d-4d9f-bd7d-4a4cd7c00101",
+    "name": "Trend-Burada",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.collectionVariables.set('correlationId', 'tb-' + Date.now());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:8090"},
+    {"key": "accessToken", "value": ""},
+    {"key": "createdUserId", "value": ""},
+    {"key": "confirmCode", "value": ""},
+    {"key": "customerCode", "value": "cust-1001"},
+    {"key": "demoEmail", "value": "demo@trendburada.com"},
+    {"key": "demoPassword", "value": "Demo123!"},
+    {"key": "correlationId", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Account Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/account-status?email={{demoEmail}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "account-status"],
+              "query": [{"key": "email", "value": "{{demoEmail}}"}]
+            }
+          }
+        },
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.returnData && json.returnData[0] && json.returnData[0].pkId) {",
+                  "  pm.collectionVariables.set('createdUserId', json.returnData[0].pkId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": true,\n  \"username\": \"user{{$timestamp}}@trendburada.test\",\n  \"emailVerified\": false,\n  \"firstName\": \"Trend\",\n  \"lastName\": \"Burada\",\n  \"email\": \"user{{$timestamp}}@trendburada.test\",\n  \"credentials\": [\n    {\n      \"type\": \"password\",\n      \"value\": \"Demo123!\",\n      \"temporary\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Resend Confirm Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/createConfirm?userId={{createdUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "createConfirm"],
+              "query": [{"key": "userId", "value": "{{createdUserId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Confirm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/confirm?userId={{createdUserId}}&confirmCode={{confirmCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "confirm"],
+              "query": [
+                {"key": "userId", "value": "{{createdUserId}}"},
+                {"key": "confirmCode", "value": "{{confirmCode}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const token = json.returnData && json.returnData[0] && json.returnData[0].accessTokenResponse && json.returnData[0].accessTokenResponse.access_token;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('accessToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Basic ZGVtb0B0cmVuZGJ1cmFkYS5jb206RGVtbzEyMyE="},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "List Profiles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/customer/profiles", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "profiles"]}
+          }
+        },
+        {
+          "name": "Create Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"fullName\": \"Ayse Kaya\",\n  \"email\": \"ayse.kaya{{$timestamp}}@trendburada.test\",\n  \"segment\": \"NEW\",\n  \"preferredCategory\": \"kadin\"\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/customer/profiles", "host": ["{{baseUrl}}"], "path": ["api", "v1", "customer", "profiles"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/catalog/products", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "products"]}
+          }
+        },
+        {
+          "name": "List Facets By Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/catalog/facets?category=elbise",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "catalog", "facets"],
+              "query": [{"key": "category", "value": "elbise"}]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Soft Cotton Hoodie\",\n  \"category\": \"spor\",\n  \"brand\": \"TB Active\",\n  \"imageUrl\": \"https://images.example.com/products/soft-cotton-hoodie.jpg\",\n  \"price\": 899.9,\n  \"fastDelivery\": true\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/catalog/products", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "products"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Home",
+      "item": [
+        {
+          "name": "Get Campaign Content",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/home/campaigns", "host": ["{{baseUrl}}"], "path": ["api", "home", "campaigns"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Cart Preview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/preview?customerCode={{customerCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "preview"],
+              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+            }
+          }
+        },
+        {
+          "name": "List Cart Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/items?customerCode={{customerCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", "items"],
+              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+            }
+          }
+        },
+        {
+          "name": "Add Cart Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"customerCode\": \"{{customerCode}}\",\n  \"productCode\": \"prd-103\",\n  \"quantity\": 1,\n  \"unitPrice\": 2199.9\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/cart/items", "host": ["{{baseUrl}}"], "path": ["api", "v1", "cart", "items"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders?customerCode={{customerCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"],
+              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+            }
+          }
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"customerCode\": \"{{customerCode}}\",\n  \"status\": \"CREATED\",\n  \"totalAmount\": 1899.9\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/orders", "host": ["{{baseUrl}}"], "path": ["api", "v1", "orders"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "Favorite Snapshot",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/favorites/snapshot?customerCode={{customerCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "favorites", "snapshot"],
+              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+            }
+          }
+        },
+        {
+          "name": "List Favorites",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/favorites?customerCode={{customerCode}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "favorites"],
+              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+            }
+          }
+        },
+        {
+          "name": "Create Favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"customerCode\": \"{{customerCode}}\",\n  \"productCode\": \"prd-102\"\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/favorites", "host": ["{{baseUrl}}"], "path": ["api", "v1", "favorites"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promotions",
+      "item": [
+        {
+          "name": "List Banners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/promotions/banners", "host": ["{{baseUrl}}"], "path": ["api", "v1", "promotions", "banners"]}
+          }
+        },
+        {
+          "name": "Create Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Weekend Deals\",\n  \"description\": \"Hafta sonuna ozel secili urun kampanyalari.\",\n  \"imageUrl\": \"https://images.example.com/banners/weekend-deals.jpg\",\n  \"targetUrl\": \"/product/indirim\",\n  \"blockType\": \"CAMPAIGN\",\n  \"sortOrder\": 10\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/promotions/banners", "host": ["{{baseUrl}}"], "path": ["api", "v1", "promotions", "banners"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Recommendation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"customerId\": \"{{customerCode}}\",\n  \"category\": \"kadin\",\n  \"usage\": \"ofis\",\n  \"style\": \"minimal\",\n  \"budget\": 3000\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/ai/recommendations", "host": ["{{baseUrl}}"], "path": ["api", "v1", "ai", "recommendations"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Architecture",
+      "item": [
+        {
+          "name": "Modules",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/architecture/modules", "host": ["{{baseUrl}}"], "path": ["api", "v1", "architecture", "modules"]}
+          }
+        }
+      ]
+    }
+  ]
+}
