@@ -1,7 +1,6 @@
 package com.trendburada.promotion.application;
 
-public record PromotionBanner(
-        String id,
+public record CreatePromotionBannerRequest(
         String title,
         String description,
         String imageUrl,

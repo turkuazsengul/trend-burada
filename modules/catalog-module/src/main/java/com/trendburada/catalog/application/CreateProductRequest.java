@@ -1,7 +1,6 @@
 package com.trendburada.catalog.application;
 
-public record ProductSummary(
-        String id,
+public record CreateProductRequest(
         String title,
         String category,
         String brand,
