@@ -5,7 +5,16 @@ public record CreateProductRequest(
         String category,
         String brand,
         String imageUrl,
+        double oldPrice,
+        int discountRate,
+        double rating,
+        int reviewCount,
+        String color,
+        String size,
+        boolean freeCargo,
         double price,
-        boolean fastDelivery
+        boolean fastDelivery,
+        double sellerScore,
+        String installmentText
 ) {
 }

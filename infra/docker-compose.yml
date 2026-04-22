@@ -17,12 +17,27 @@ services:
     environment:
       CONFIG_SERVER_URI: http://config-server:8888
       SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_JWT_ISSUER_URI: http://keycloak:8080/realms/trend-burada
+      GATEWAY_REDIS_HOST: redis
+      GATEWAY_REDIS_PORT: 6379
     ports:
       - "8090:8090"
     depends_on:
       - config-server
       - app
       - redis
+
+  web:
+    build:
+      context: ../../trend-burada-web
+      dockerfile: Dockerfile
+    container_name: trend-burada-web
+    env_file:
+      - ../../trend-burada-web/.env.compose
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
 
   postgres-app:
     image: postgres:16

@@ -186,6 +186,22 @@
           }
         },
         {
+          "name": "List Facets By Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/catalog/facets?category=elbise",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "catalog", "facets"],
+              "query": [{"key": "category", "value": "elbise"}]
+            }
+          }
+        },
+        {
           "name": "Create Product",
           "request": {
             "method": "POST",

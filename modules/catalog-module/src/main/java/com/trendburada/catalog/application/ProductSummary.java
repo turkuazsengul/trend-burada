@@ -5,8 +5,21 @@ public record ProductSummary(
         String title,
         String category,
         String brand,
+        String mark,
         String imageUrl,
+        String img,
+        double oldPrice,
+        int discountRate,
+        double rating,
+        int reviewCount,
+        String color,
+        String size,
+        boolean freeCargo,
+        boolean isFreeCargo,
         double price,
-        boolean fastDelivery
+        boolean fastDelivery,
+        boolean isFastDelivery,
+        double sellerScore,
+        String installmentText
 ) {
 }

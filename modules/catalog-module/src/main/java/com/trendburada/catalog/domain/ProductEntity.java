@@ -30,11 +30,38 @@ public class ProductEntity {
     @Column(length = 500)
     private String imageUrl;
 
+    @Column
+    private double oldPrice;
+
+    @Column
+    private int discountRate;
+
+    @Column
+    private double rating;
+
+    @Column
+    private int reviewCount;
+
+    @Column(length = 64)
+    private String color;
+
+    @Column(length = 16)
+    private String size;
+
+    @Column(nullable = false)
+    private boolean freeCargo;
+
     @Column(nullable = false)
     private double price;
 
     @Column(nullable = false)
     private boolean fastDelivery;
+
+    @Column
+    private double sellerScore;
+
+    @Column(length = 64)
+    private String installmentText;
 
     public Long getId() {
         return id;
@@ -80,6 +107,62 @@ public class ProductEntity {
         this.imageUrl = imageUrl;
     }
 
+    public double getOldPrice() {
+        return oldPrice;
+    }
+
+    public void setOldPrice(double oldPrice) {
+        this.oldPrice = oldPrice;
+    }
+
+    public int getDiscountRate() {
+        return discountRate;
+    }
+
+    public void setDiscountRate(int discountRate) {
+        this.discountRate = discountRate;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public boolean isFreeCargo() {
+        return freeCargo;
+    }
+
+    public void setFreeCargo(boolean freeCargo) {
+        this.freeCargo = freeCargo;
+    }
+
     public double getPrice() {
         return price;
     }
@@ -94,5 +177,21 @@ public class ProductEntity {
 
     public void setFastDelivery(boolean fastDelivery) {
         this.fastDelivery = fastDelivery;
+    }
+
+    public double getSellerScore() {
+        return sellerScore;
+    }
+
+    public void setSellerScore(double sellerScore) {
+        this.sellerScore = sellerScore;
+    }
+
+    public String getInstallmentText() {
+        return installmentText;
+    }
+
+    public void setInstallmentText(String installmentText) {
+        this.installmentText = installmentText;
     }
 }
