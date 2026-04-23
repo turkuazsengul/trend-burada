@@ -308,6 +308,7 @@ public class DomainDataInitializer {
         entity.setTitle(title);
         entity.setCategory(category);
         entity.setBrand(brand);
+        entity.setSellerEmail(resolveSellerEmailForCategory(category));
         entity.setImageUrl(imageUrl);
         entity.setColor(color);
         entity.setSize(size);
@@ -421,6 +422,7 @@ public class DomainDataInitializer {
         entity.setTitle(seed.getTitle());
         entity.setCategory(seed.getCategory());
         entity.setBrand(seed.getBrand());
+        entity.setSellerEmail(seed.getSellerEmail());
         entity.setImageUrl(seed.getImageUrl());
         entity.setColor(seed.getColor());
         entity.setSize(seed.getSize());
@@ -468,6 +470,20 @@ public class DomainDataInitializer {
         entity.setBlockType(seed.getBlockType());
         entity.setSortOrder(seed.getSortOrder());
         repository.save(entity);
+    }
+
+    private String resolveSellerEmailForCategory(String category) {
+        if (category == null || category.isBlank()) {
+            return "seller@trendburada.local";
+        }
+
+        return switch (category) {
+            case "elbise", "tisort", "gomlek", "pantolon", "ceket", "triko" ->
+                    "seller@trendburada.local";
+            case "erkek-tisort", "erkek-gomlek", "jean", "erkek-pantolon", "sweatshirt", "mont" ->
+                    "menswear@trendburada.local";
+            default -> "family.active@trendburada.local";
+        };
     }
 
     private CartItemEntity buildCartItem(String cartCode, String productCode, int quantity, double unitPrice) {

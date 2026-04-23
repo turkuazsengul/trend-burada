@@ -62,6 +62,7 @@ SET created_at = CURRENT_TIMESTAMP
 WHERE created_at IS NULL@@
 
 ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS image_url VARCHAR(500)@@
+ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS seller_email VARCHAR(255) DEFAULT 'seller@trendburada.local'@@
 ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS old_price DOUBLE PRECISION DEFAULT 0@@
 ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS discount_rate INTEGER DEFAULT 0@@
 ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS rating DOUBLE PRECISION DEFAULT 0@@
@@ -76,7 +77,14 @@ ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS color_options_js
 ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS highlights_json TEXT@@
 ALTER TABLE IF EXISTS catalog.products ADD COLUMN IF NOT EXISTS attributes_json TEXT@@
 UPDATE catalog.products
-SET old_price = COALESCE(old_price, 0),
+SET seller_email = COALESCE(seller_email,
+        CASE
+            WHEN category IN ('elbise', 'tisort', 'gomlek', 'pantolon', 'ceket', 'triko') THEN 'seller@trendburada.local'
+            WHEN category IN ('erkek-tisort', 'erkek-gomlek', 'jean', 'erkek-pantolon', 'sweatshirt', 'mont') THEN 'menswear@trendburada.local'
+            WHEN category IN ('kiz-cocuk', 'erkek-cocuk', 'bebek-giyim', 'okul-kombinleri', 'esofman', 'tayt', 'spor-sutyeni', 'hoodie', 'kosu-urunleri', 'sneaker', 'bot', 'topuklu-ayakkabi', 'loafer', 'sandalet', 'canta', 'kemer', 'cuzdan', 'taki', 'sapka') THEN 'family.active@trendburada.local'
+            ELSE 'seller@trendburada.local'
+        END),
+    old_price = COALESCE(old_price, 0),
     discount_rate = COALESCE(discount_rate, 0),
     rating = COALESCE(rating, 0),
     review_count = COALESCE(review_count, 0),
@@ -89,7 +97,8 @@ SET old_price = COALESCE(old_price, 0),
     color_options_json = COALESCE(color_options_json, ''),
     highlights_json = COALESCE(highlights_json, ''),
     attributes_json = COALESCE(attributes_json, '')
-WHERE old_price IS NULL
+WHERE seller_email IS NULL
+   OR old_price IS NULL
    OR discount_rate IS NULL
    OR rating IS NULL
    OR review_count IS NULL

@@ -29,6 +29,9 @@ public class ProductEntity {
     @Column(nullable = false, length = 100)
     private String brand;
 
+    @Column(nullable = false, length = 255)
+    private String sellerEmail;
+
     @Column(length = 500)
     private String imageUrl;
 
@@ -111,6 +114,14 @@ public class ProductEntity {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public String getSellerEmail() {
+        return sellerEmail;
+    }
+
+    public void setSellerEmail(String sellerEmail) {
+        this.sellerEmail = sellerEmail;
     }
 
     public String getImageUrl() {

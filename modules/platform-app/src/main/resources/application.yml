@@ -34,6 +34,11 @@ spring:
           auth: ${MAIL_SMTP_AUTH:false}
           starttls:
             enable: ${MAIL_SMTP_STARTTLS:false}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:${app.auth.keycloak.base-url}/realms/${app.auth.keycloak.realm}}
 
 server:
   port: 8080
