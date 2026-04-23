@@ -7,14 +7,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "auth_verification_codes")
 public class VerificationCodeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    private UUID id;
 
     @Column(nullable = false, length = 64)
     private String userId;
@@ -34,7 +36,7 @@ public class VerificationCodeEntity {
     @Column(nullable = false)
     private OffsetDateTime createdAt;
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

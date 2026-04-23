@@ -124,6 +124,13 @@ services:
       AUTH_VERIFICATION_SENDER_NAME: ${AUTH_VERIFICATION_SENDER_NAME}
       AUTH_VERIFICATION_SENDER_EMAIL: ${AUTH_VERIFICATION_SENDER_EMAIL}
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus,env,configprops
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: always
+      MANAGEMENT_METRICS_TAGS_APPLICATION: trend-burada-platform-app
+      SPRINGDOC_SWAGGER_UI_PATH: /swagger-ui.html
+      SPRINGDOC_API_DOCS_PATH: /v3/api-docs
+    ports:
+      - "8080:8080"
     depends_on:
       - config-server
       - postgres-app

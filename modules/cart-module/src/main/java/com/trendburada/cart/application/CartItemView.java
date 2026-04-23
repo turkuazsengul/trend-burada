@@ -1,7 +1,9 @@
 package com.trendburada.cart.application;
 
+import java.util.UUID;
+
 public record CartItemView(
-        Long id,
+        UUID id,
         String cartCode,
         String productCode,
         int quantity,

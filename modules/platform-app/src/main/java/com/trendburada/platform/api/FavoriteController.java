@@ -5,7 +5,7 @@ import com.trendburada.favorite.application.FavoriteItem;
 import com.trendburada.favorite.application.FavoriteQueryService;
 import com.trendburada.favorite.application.FavoriteSnapshot;
 import com.trendburada.shared.ApiResponse;
-import java.util.List;
+import com.trendburada.shared.PagedResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,8 +29,10 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public ApiResponse<List<FavoriteItem>> favorites(@RequestParam String customerCode) {
-        return ApiResponse.ok(favoriteQueryService.getFavorites(customerCode));
+    public ApiResponse<PagedResult<FavoriteItem>> favorites(@RequestParam String customerCode,
+                                                            @RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.ok(favoriteQueryService.getFavorites(customerCode, page, size));
     }
 
     @PostMapping

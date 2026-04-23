@@ -16,7 +16,7 @@ public class PromotionQueryService {
     }
 
     public List<PromotionBanner> getHomepageBanners() {
-        return promotionBannerRepository.findAllByOrderBySortOrderAscIdAsc().stream().map(this::map).toList();
+        return promotionBannerRepository.findAllByOrderBySortOrderAscBannerCodeAsc().stream().map(this::map).toList();
     }
 
     public HomeCampaignContentResponse getHomeCampaignContent() {
@@ -24,7 +24,7 @@ public class PromotionQueryService {
         List<HomepageContentBlock> campaignBlocks = new java.util.ArrayList<>();
         List<HomepageContentBlock> showcaseBlocks = new java.util.ArrayList<>();
 
-        for (PromotionBannerEntity entity : promotionBannerRepository.findAllByOrderBySortOrderAscIdAsc()) {
+        for (PromotionBannerEntity entity : promotionBannerRepository.findAllByOrderBySortOrderAscBannerCodeAsc()) {
             HomepageContentBlock block = mapToHomepageBlock(entity);
             switch (normalizeBlockType(entity.getBlockType())) {
                 case "HERO" -> heroBlocks.add(block);

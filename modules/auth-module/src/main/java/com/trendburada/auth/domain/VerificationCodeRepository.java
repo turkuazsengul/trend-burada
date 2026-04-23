@@ -3,9 +3,10 @@ package com.trendburada.auth.domain;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface VerificationCodeRepository extends JpaRepository<VerificationCodeEntity, Long> {
+public interface VerificationCodeRepository extends JpaRepository<VerificationCodeEntity, UUID> {
 
     Optional<VerificationCodeEntity> findTopByUserIdAndCodeAndConsumedAtIsNullOrderByCreatedAtDesc(String userId, String code);
 
