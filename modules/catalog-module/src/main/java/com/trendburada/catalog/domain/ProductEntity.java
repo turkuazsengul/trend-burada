@@ -6,14 +6,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(schema = "catalog", name = "products")
 public class ProductEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    private UUID id;
 
     @Column(nullable = false, unique = true, length = 64)
     private String productCode;
@@ -31,16 +33,16 @@ public class ProductEntity {
     private String imageUrl;
 
     @Column
-    private double oldPrice;
+    private Double oldPrice;
 
     @Column
-    private int discountRate;
+    private Integer discountRate;
 
     @Column
-    private double rating;
+    private Double rating;
 
     @Column
-    private int reviewCount;
+    private Integer reviewCount;
 
     @Column(length = 64)
     private String color;
@@ -49,21 +51,33 @@ public class ProductEntity {
     private String size;
 
     @Column(nullable = false)
-    private boolean freeCargo;
+    private Boolean freeCargo;
 
     @Column(nullable = false)
-    private double price;
+    private Double price;
 
     @Column(nullable = false)
-    private boolean fastDelivery;
+    private Boolean fastDelivery;
 
     @Column
-    private double sellerScore;
+    private Double sellerScore;
 
     @Column(length = 64)
     private String installmentText;
 
-    public Long getId() {
+    @Column(columnDefinition = "TEXT")
+    private String sizeOptionsJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String colorOptionsJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String highlightsJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String attributesJson;
+
+    public UUID getId() {
         return id;
     }
 
@@ -108,34 +122,50 @@ public class ProductEntity {
     }
 
     public double getOldPrice() {
-        return oldPrice;
+        return oldPrice == null ? 0 : oldPrice;
     }
 
     public void setOldPrice(double oldPrice) {
         this.oldPrice = oldPrice;
     }
 
+    public void setOldPrice(Double oldPrice) {
+        this.oldPrice = oldPrice;
+    }
+
     public int getDiscountRate() {
-        return discountRate;
+        return discountRate == null ? 0 : discountRate;
     }
 
     public void setDiscountRate(int discountRate) {
         this.discountRate = discountRate;
     }
 
+    public void setDiscountRate(Integer discountRate) {
+        this.discountRate = discountRate;
+    }
+
     public double getRating() {
-        return rating;
+        return rating == null ? 0 : rating;
     }
 
     public void setRating(double rating) {
         this.rating = rating;
     }
 
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
     public int getReviewCount() {
-        return reviewCount;
+        return reviewCount == null ? 0 : reviewCount;
     }
 
     public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public void setReviewCount(Integer reviewCount) {
         this.reviewCount = reviewCount;
     }
 
@@ -156,34 +186,50 @@ public class ProductEntity {
     }
 
     public boolean isFreeCargo() {
-        return freeCargo;
+        return Boolean.TRUE.equals(freeCargo);
     }
 
     public void setFreeCargo(boolean freeCargo) {
         this.freeCargo = freeCargo;
     }
 
+    public void setFreeCargo(Boolean freeCargo) {
+        this.freeCargo = freeCargo;
+    }
+
     public double getPrice() {
-        return price;
+        return price == null ? 0 : price;
     }
 
     public void setPrice(double price) {
         this.price = price;
     }
 
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
     public boolean isFastDelivery() {
-        return fastDelivery;
+        return Boolean.TRUE.equals(fastDelivery);
     }
 
     public void setFastDelivery(boolean fastDelivery) {
         this.fastDelivery = fastDelivery;
     }
 
+    public void setFastDelivery(Boolean fastDelivery) {
+        this.fastDelivery = fastDelivery;
+    }
+
     public double getSellerScore() {
-        return sellerScore;
+        return sellerScore == null ? 0 : sellerScore;
     }
 
     public void setSellerScore(double sellerScore) {
+        this.sellerScore = sellerScore;
+    }
+
+    public void setSellerScore(Double sellerScore) {
         this.sellerScore = sellerScore;
     }
 
@@ -193,5 +239,37 @@ public class ProductEntity {
 
     public void setInstallmentText(String installmentText) {
         this.installmentText = installmentText;
+    }
+
+    public String getSizeOptionsJson() {
+        return sizeOptionsJson;
+    }
+
+    public void setSizeOptionsJson(String sizeOptionsJson) {
+        this.sizeOptionsJson = sizeOptionsJson;
+    }
+
+    public String getColorOptionsJson() {
+        return colorOptionsJson;
+    }
+
+    public void setColorOptionsJson(String colorOptionsJson) {
+        this.colorOptionsJson = colorOptionsJson;
+    }
+
+    public String getHighlightsJson() {
+        return highlightsJson;
+    }
+
+    public void setHighlightsJson(String highlightsJson) {
+        this.highlightsJson = highlightsJson;
+    }
+
+    public String getAttributesJson() {
+        return attributesJson;
+    }
+
+    public void setAttributesJson(String attributesJson) {
+        this.attributesJson = attributesJson;
     }
 }

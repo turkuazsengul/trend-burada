@@ -1,6 +1,8 @@
 package com.trendburada.catalog.application;
 
-public record ProductSummary(
+import java.util.List;
+
+public record ProductDetail(
         String id,
         String productCode,
         String title,
@@ -21,6 +23,10 @@ public record ProductSummary(
         boolean fastDelivery,
         boolean isFastDelivery,
         double sellerScore,
-        String installmentText
+        String installmentText,
+        List<String> sizeOptions,
+        List<ProductColorOption> colorOptions,
+        List<String> highlights,
+        List<ProductAttribute> attributes
 ) {
 }

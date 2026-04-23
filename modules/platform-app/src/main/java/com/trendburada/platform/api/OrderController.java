@@ -4,7 +4,7 @@ import com.trendburada.order.application.CreateOrderRequest;
 import com.trendburada.order.application.OrderOverview;
 import com.trendburada.order.application.OrderQueryService;
 import com.trendburada.shared.ApiResponse;
-import java.util.List;
+import com.trendburada.shared.PagedResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,8 +23,10 @@ public class OrderController {
     }
 
     @GetMapping
-    public ApiResponse<List<OrderOverview>> recentOrders(@RequestParam(required = false) String customerCode) {
-        return ApiResponse.ok(orderQueryService.getRecentOrders(customerCode));
+    public ApiResponse<PagedResult<OrderOverview>> recentOrders(@RequestParam(required = false) String customerCode,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.ok(orderQueryService.getRecentOrders(customerCode, page, size));
     }
 
     @PostMapping

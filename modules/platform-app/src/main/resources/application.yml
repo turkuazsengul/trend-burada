@@ -21,6 +21,7 @@ spring:
   sql:
     init:
       mode: always
+      separator: "@@"
       schema-locations: classpath:db/init-schemas.sql
   mail:
     host: ${MAIL_HOST:localhost}
@@ -41,7 +42,21 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus,env,configprops
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
 
 app:
   architecture:

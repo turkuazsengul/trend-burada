@@ -14,7 +14,11 @@ import com.trendburada.order.domain.OrderEntity;
 import com.trendburada.order.domain.OrderRepository;
 import com.trendburada.promotion.domain.PromotionBannerEntity;
 import com.trendburada.promotion.domain.PromotionBannerRepository;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import org.springframework.boot.CommandLineRunner;
@@ -25,9 +29,20 @@ import org.springframework.context.annotation.Configuration;
 public class DomainDataInitializer {
 
     private static final List<String> BRANDS = List.of("Zara", "Mango", "Koton", "Ipekyol", "Mavi", "Stradivarius", "H&M", "LCW Vision", "Massimo");
-    private static final List<String> COLORS = List.of("Siyah", "Beyaz", "Bej", "Lacivert", "Haki", "Kirmizi", "Gri", "Mavi");
+    private static final List<String> COLORS = List.of("Siyah", "Beyaz", "Bej", "Lacivert", "Haki", "Kirmizi", "Gri", "Mavi", "Krem", "Pembe");
     private static final List<String> SIZES = List.of("XS", "S", "M", "L", "XL");
-    private static final List<String> INSTALLMENTS = List.of("Pesin fiyatina", "2 taksit", "3 taksit", "4 taksit");
+    private static final List<String> INSTALLMENTS = List.of("Pesin fiyatina", "2 taksit", "3 taksit", "4 taksit", "6 taksit");
+    private static final List<String> TITLE_PREFIX = List.of("Premium", "Modern", "Minimal", "Zamansiz", "Sik", "Gunluk", "Klasik", "Rahat", "Trend", "Yumusak Dokulu");
+    private static final List<String> FIT_POOL = List.of("Regular Fit", "Slim Fit", "Oversize", "Relaxed Fit");
+    private static final List<String> FABRIC_POOL = List.of("Pamuk", "Pamuk - Elastan", "Viskon", "Keten Karisimli", "Modal");
+    private static final List<String> ORIGIN_POOL = List.of("Turkiye", "Italya", "Portekiz", "Ispanya");
+    private static final List<String> DETAIL_SUFFIX_POOL = List.of(
+            "Gunluk Kullanim Icin Uygun",
+            "Yumusak Dokulu Tasarim",
+            "Modern ve Rahat Kesim",
+            "Sehir Stiline Uyumlu",
+            "Premium Gorunumlu Durus"
+    );
     private static final Map<String, CategorySeed> CATEGORY_SEEDS = Map.ofEntries(
             Map.entry("elbise", new CategorySeed("Elbise", List.of("Midi", "Maxi", "Saten", "Kruvaze", "Drapeli", "Askili"), List.of(
                     "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1800&q=90",
@@ -217,6 +232,7 @@ public class DomainDataInitializer {
                 FavoriteEntity favorite = new FavoriteEntity();
                 favorite.setCustomerCode("cust-1001");
                 favorite.setProductCode("elbise-1");
+                favorite.setCreatedAt(OffsetDateTime.now().minusDays(1));
                 favoriteRepository.save(favorite);
             }
 
@@ -226,6 +242,7 @@ public class DomainDataInitializer {
                 order.setCustomerCode("cust-1001");
                 order.setStatus("SHIPPED");
                 order.setTotalAmount(2750.50);
+                order.setCreatedAt(OffsetDateTime.now().minusDays(1));
                 orderRepository.save(order);
             }
 
@@ -281,7 +298,11 @@ public class DomainDataInitializer {
                                        boolean freeCargo,
                                        boolean fastDelivery,
                                        double sellerScore,
-                                       String installmentText) {
+                                       String installmentText,
+                                       String sizeOptionsJson,
+                                       String colorOptionsJson,
+                                       String highlightsJson,
+                                       String attributesJson) {
         ProductEntity entity = new ProductEntity();
         entity.setProductCode(code);
         entity.setTitle(title);
@@ -299,6 +320,10 @@ public class DomainDataInitializer {
         entity.setFastDelivery(fastDelivery);
         entity.setSellerScore(sellerScore);
         entity.setInstallmentText(installmentText);
+        entity.setSizeOptionsJson(sizeOptionsJson);
+        entity.setColorOptionsJson(colorOptionsJson);
+        entity.setHighlightsJson(highlightsJson);
+        entity.setAttributesJson(attributesJson);
         return entity;
     }
 
@@ -323,28 +348,68 @@ public class DomainDataInitializer {
     private List<ProductEntity> buildCategoryProducts(String category, CategorySeed seed) {
         List<ProductEntity> products = new ArrayList<>();
         for (int index = 0; index < 12; index++) {
-            double price = 650 + (index * 170) + (category.length() * 13);
-            double oldPrice = price + 220 + ((index % 4) * 80);
+            double price = 650 + (index * 130) + (category.length() * 17);
+            double oldPrice = price + 220 + ((index % 5) * 90);
             int discountRate = Math.max(0, (int) Math.round(((oldPrice - price) / oldPrice) * 100));
             String code = category + "-" + (index + 1);
-            String title = seed.productWords().get(index % seed.productWords().size()) + " " + seed.suffixLabel();
+            String mark = BRANDS.get((index + category.length()) % BRANDS.size());
+            String color = COLORS.get((index * 2 + category.length()) % COLORS.size());
+            String size = SIZES.get((index + 1) % SIZES.size());
+            List<String> sizeOptions = new ArrayList<>(new LinkedHashSet<>(List.of(
+                    SIZES.get(index % SIZES.size()),
+                    SIZES.get((index + 1) % SIZES.size()),
+                    SIZES.get((index + 2) % SIZES.size()),
+                    SIZES.get((index + 3) % SIZES.size())
+            )));
+            String primaryImage = seed.imagePool().get((index + category.length()) % seed.imagePool().size());
+            List<Map<String, String>> colorOptions = List.of(
+                    Map.of("name", color, "image", primaryImage),
+                    Map.of(
+                            "name", COLORS.get((index + 1 + category.length()) % COLORS.size()),
+                            "image", seed.imagePool().get((index + 1) % seed.imagePool().size())
+                    ),
+                    Map.of(
+                            "name", COLORS.get((index + 3 + category.length()) % COLORS.size()),
+                            "image", seed.imagePool().get((index + 2) % seed.imagePool().size())
+                    )
+            );
+            String prefix = TITLE_PREFIX.get((index + 3) % TITLE_PREFIX.size());
+            String core = seed.productWords().get(index % seed.productWords().size());
+            String fit = FIT_POOL.get(index % FIT_POOL.size());
+            String fabric = FABRIC_POOL.get(index % FABRIC_POOL.size());
+            String detailSuffix = DETAIL_SUFFIX_POOL.get(index % DETAIL_SUFFIX_POOL.size());
+            String title = prefix + " " + core + " " + seed.suffixLabel() + " " + fit + " " + fabric + " " + detailSuffix;
             products.add(buildProduct(
                     code,
                     title,
                     category,
-                    BRANDS.get(index % BRANDS.size()),
-                    seed.imagePool().get(index % seed.imagePool().size()),
-                    COLORS.get(index % COLORS.size()),
-                    SIZES.get(index % SIZES.size()),
+                    mark,
+                    primaryImage,
+                    color,
+                    size,
                     price,
                     oldPrice,
                     discountRate,
-                    3 + (index % 3),
-                    60 + (index * 23),
+                    3 + ((index + 1) % 3),
+                    35 + (index * 19),
                     index % 2 == 0,
                     index % 3 != 0,
-                    8.8 + ((index % 8) * 0.1),
-                    INSTALLMENTS.get(index % INSTALLMENTS.size())
+                    8.8 + ((index % 10) * 0.1),
+                    INSTALLMENTS.get(index % INSTALLMENTS.size()),
+                    encodeStringList(sizeOptions),
+                    encodePairs(colorOptions, "name", "image"),
+                    encodeStringList(List.of(
+                            "Nefes alan kumas yapisi",
+                            "Gun boyu konfor saglayan kesim",
+                            "Sezon kombinlerine uyumlu modern tasarim"
+                    )),
+                    encodePairs(List.of(
+                            Map.of("label", "Kalip", "value", fit),
+                            Map.of("label", "Materyal", "value", fabric),
+                            Map.of("label", "Renk", "value", color),
+                            Map.of("label", "Beden", "value", size),
+                            Map.of("label", "Mensei", "value", ORIGIN_POOL.get(index % ORIGIN_POOL.size()))
+                    ), "label", "value")
             ));
         }
         return products;
@@ -368,7 +433,29 @@ public class DomainDataInitializer {
         entity.setFastDelivery(seed.isFastDelivery());
         entity.setSellerScore(seed.getSellerScore());
         entity.setInstallmentText(seed.getInstallmentText());
+        entity.setSizeOptionsJson(seed.getSizeOptionsJson());
+        entity.setColorOptionsJson(seed.getColorOptionsJson());
+        entity.setHighlightsJson(seed.getHighlightsJson());
+        entity.setAttributesJson(seed.getAttributesJson());
         repository.save(entity);
+    }
+
+    private String encodeStringList(List<String> values) {
+        return values.stream()
+                .map(this::encode)
+                .reduce((left, right) -> left + "||" + right)
+                .orElse("");
+    }
+
+    private String encodePairs(List<Map<String, String>> values, String leftKey, String rightKey) {
+        return values.stream()
+                .map(value -> encode(value.getOrDefault(leftKey, "")) + "::" + encode(value.getOrDefault(rightKey, "")))
+                .reduce((left, right) -> left + "||" + right)
+                .orElse("");
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
 
     private void upsertBanner(PromotionBannerRepository repository, PromotionBannerEntity seed) {

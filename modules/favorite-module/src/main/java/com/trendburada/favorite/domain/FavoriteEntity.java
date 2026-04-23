@@ -6,14 +6,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(schema = "favorite", name = "favorites")
 public class FavoriteEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    private UUID id;
 
     @Column(nullable = false, length = 64)
     private String customerCode;
@@ -21,7 +24,10 @@ public class FavoriteEntity {
     @Column(nullable = false, length = 64)
     private String productCode;
 
-    public Long getId() {
+    @Column(nullable = false)
+    private OffsetDateTime createdAt;
+
+    public UUID getId() {
         return id;
     }
 
@@ -39,5 +45,13 @@ public class FavoriteEntity {
 
     public void setProductCode(String productCode) {
         this.productCode = productCode;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

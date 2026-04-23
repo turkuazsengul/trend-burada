@@ -6,14 +6,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(schema = "cart", name = "cart_items")
 public class CartItemEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    private UUID id;
 
     @Column(nullable = false, length = 64)
     private String cartCode;
@@ -27,7 +29,7 @@ public class CartItemEntity {
     @Column(nullable = false)
     private double unitPrice;
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

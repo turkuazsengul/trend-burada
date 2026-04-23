@@ -1,7 +1,9 @@
 package com.trendburada.favorite.application;
 
+import java.util.UUID;
+
 public record FavoriteItem(
-        Long id,
+        UUID id,
         String customerCode,
         String productCode
 ) {

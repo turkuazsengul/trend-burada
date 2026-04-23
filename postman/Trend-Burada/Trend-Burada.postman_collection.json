@@ -182,7 +182,16 @@
               {"key": "Authorization", "value": "Bearer {{accessToken}}"},
               {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
             ],
-            "url": {"raw": "{{baseUrl}}/api/v1/catalog/products", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "products"]}
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/catalog/products?category=elbise&page=0&size=24",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "catalog", "products"],
+              "query": [
+                {"key": "category", "value": "elbise"},
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "24"}
+              ]
+            }
           }
         },
         {
@@ -198,6 +207,21 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "catalog", "facets"],
               "query": [{"key": "category", "value": "elbise"}]
+            }
+          }
+        },
+        {
+          "name": "Get Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/catalog/products/elbise-1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "catalog", "products", "elbise-1"]
             }
           }
         },
@@ -294,10 +318,14 @@
               {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/orders?customerCode={{customerCode}}",
+              "raw": "{{baseUrl}}/api/v1/orders?customerCode={{customerCode}}&page=0&size=10",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "orders"],
-              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+              "query": [
+                {"key": "customerCode", "value": "{{customerCode}}"},
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
             }
           }
         },
@@ -344,10 +372,14 @@
               {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/favorites?customerCode={{customerCode}}",
+              "raw": "{{baseUrl}}/api/v1/favorites?customerCode={{customerCode}}&page=0&size=20",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "favorites"],
-              "query": [{"key": "customerCode", "value": "{{customerCode}}"}]
+              "query": [
+                {"key": "customerCode", "value": "{{customerCode}}"},
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "20"}
+              ]
             }
           }
         },

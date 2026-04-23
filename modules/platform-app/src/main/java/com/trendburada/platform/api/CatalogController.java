@@ -2,11 +2,14 @@ package com.trendburada.platform.api;
 
 import com.trendburada.catalog.application.CatalogQueryService;
 import com.trendburada.catalog.application.CreateProductRequest;
+import com.trendburada.catalog.application.ProductDetail;
 import com.trendburada.catalog.application.ProductFacet;
 import com.trendburada.catalog.application.ProductSummary;
 import com.trendburada.shared.ApiResponse;
+import com.trendburada.shared.PagedResult;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,16 +28,23 @@ public class CatalogController {
 
     @GetMapping("/products")
     public ApiResponse<?> featuredProducts(@RequestParam(required = false) String category,
-                                           @RequestParam(required = false) String productId) {
+                                           @RequestParam(required = false) String productId,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "24") int size) {
         if (productId != null && !productId.isBlank()) {
             return ApiResponse.ok(catalogQueryService.getProductById(productId).map(List::of).orElseGet(List::of));
         }
-        return ApiResponse.ok(catalogQueryService.getProducts(category));
+        return ApiResponse.ok(catalogQueryService.getProducts(category, page, size));
     }
 
     @GetMapping("/facets")
     public ApiResponse<List<ProductFacet>> facets(@RequestParam(required = false) String category) {
         return ApiResponse.ok(catalogQueryService.getFacets(category));
+    }
+
+    @GetMapping("/products/{productId}")
+    public ApiResponse<ProductDetail> productDetail(@PathVariable String productId) {
+        return ApiResponse.ok(catalogQueryService.getProductDetailById(productId).orElse(null));
     }
 
     @PostMapping("/products")
