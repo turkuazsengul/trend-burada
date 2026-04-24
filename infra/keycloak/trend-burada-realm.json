@@ -4,11 +4,101 @@
   "roles": {
     "realm": [
       {
-        "name": "USER",
-        "description": "Default customer role"
+        "name": "CUSTOMER",
+        "description": "Customer role"
+      },
+      {
+        "name": "SELLER",
+        "description": "Seller role"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator role"
       }
     ]
   },
+  "users": [
+    {
+      "username": "customer@trendburada.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Customer",
+      "email": "customer@trendburada.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Trend123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["CUSTOMER"]
+    },
+    {
+      "username": "seller@trendburada.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Seller",
+      "email": "seller@trendburada.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Trend123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SELLER"]
+    },
+    {
+      "username": "menswear@trendburada.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Menswear",
+      "lastName": "Seller",
+      "email": "menswear@trendburada.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Trend123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SELLER"]
+    },
+    {
+      "username": "family.active@trendburada.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Family Active",
+      "lastName": "Seller",
+      "email": "family.active@trendburada.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Trend123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SELLER"]
+    },
+    {
+      "username": "admin@trendburada.local",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Admin",
+      "email": "admin@trendburada.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Trend123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN"]
+    }
+  ],
   "clients": [
     {
       "clientId": "trend-burada-web",

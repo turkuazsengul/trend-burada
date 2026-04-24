@@ -19,10 +19,20 @@
     {"key": "baseUrl", "value": "http://localhost:8090"},
     {"key": "accessToken", "value": ""},
     {"key": "createdUserId", "value": ""},
+    {"key": "createdProductId", "value": ""},
+    {"key": "createdProductCode", "value": ""},
     {"key": "confirmCode", "value": ""},
     {"key": "customerCode", "value": "cust-1001"},
-    {"key": "demoEmail", "value": "demo@trendburada.com"},
-    {"key": "demoPassword", "value": "Demo123!"},
+    {"key": "demoEmail", "value": "customer@trendburada.local"},
+    {"key": "demoPassword", "value": "Trend123!"},
+    {"key": "sellerEmail", "value": "seller@trendburada.local"},
+    {"key": "sellerPassword", "value": "Trend123!"},
+    {"key": "adminEmail", "value": "admin@trendburada.local"},
+    {"key": "adminPassword", "value": "Trend123!"},
+    {"key": "menswearEmail", "value": "menswear@trendburada.local"},
+    {"key": "menswearPassword", "value": "Trend123!"},
+    {"key": "familyActiveEmail", "value": "family.active@trendburada.local"},
+    {"key": "familyActivePassword", "value": "Trend123!"},
     {"key": "correlationId", "value": ""}
   ],
   "item": [
@@ -130,7 +140,127 @@
           "request": {
             "method": "POST",
             "header": [
-              {"key": "Authorization", "value": "Basic ZGVtb0B0cmVuZGJ1cmFkYS5jb206RGVtbzEyMyE="},
+              {"key": "Authorization", "value": "Basic Y3VzdG9tZXJAdHJlbmRidXJhZGEubG9jYWw6VHJlbmQxMjMh"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login As Seller",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const token = json.returnData && json.returnData[0] && json.returnData[0].accessTokenResponse && json.returnData[0].accessTokenResponse.access_token;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('accessToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Basic c2VsbGVyQHRyZW5kYnVyYWRhLmxvY2FsOlRyZW5kMTIzIQ=="},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login As Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const token = json.returnData && json.returnData[0] && json.returnData[0].accessTokenResponse && json.returnData[0].accessTokenResponse.access_token;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('accessToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Basic YWRtaW5AdHJlbmRidXJhZGEubG9jYWw6VHJlbmQxMjMh"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login As Menswear Seller",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const token = json.returnData && json.returnData[0] && json.returnData[0].accessTokenResponse && json.returnData[0].accessTokenResponse.access_token;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('accessToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Basic bWVuc3dlYXJAdHJlbmRidXJhZGEubG9jYWw6VHJlbmQxMjMh"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login As Family Active Seller",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const token = json.returnData && json.returnData[0] && json.returnData[0].accessTokenResponse && json.returnData[0].accessTokenResponse.access_token;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('accessToken', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Basic ZmFtaWx5LmFjdGl2ZUB0cmVuZGJ1cmFkYS5sb2NhbDpUcmVuZDEyMyE="},
               {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
             ],
             "url": {
@@ -227,6 +357,20 @@
         },
         {
           "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const payload = json.data || (json.returnData && json.returnData[0]);",
+                  "if (payload && payload.id) { pm.collectionVariables.set('createdProductId', payload.id); }",
+                  "if (payload && payload.productCode) { pm.collectionVariables.set('createdProductCode', payload.productCode); }"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -234,8 +378,53 @@
               {"key": "Content-Type", "value": "application/json"},
               {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
             ],
-            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Soft Cotton Hoodie\",\n  \"category\": \"spor\",\n  \"brand\": \"TB Active\",\n  \"imageUrl\": \"https://images.example.com/products/soft-cotton-hoodie.jpg\",\n  \"price\": 899.9,\n  \"fastDelivery\": true\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Soft Cotton Hoodie\",\n  \"category\": \"spor\",\n  \"brand\": \"TB Active\",\n  \"imageUrl\": \"https://images.example.com/products/soft-cotton-hoodie.jpg\",\n  \"oldPrice\": 999.9,\n  \"discountRate\": 10,\n  \"rating\": 4.6,\n  \"reviewCount\": 12,\n  \"color\": \"Siyah\",\n  \"size\": \"M\",\n  \"freeCargo\": true,\n  \"price\": 899.9,\n  \"fastDelivery\": true,\n  \"sellerScore\": 9.4,\n  \"installmentText\": \"Pesin fiyatina 3 taksit\"\n}"},
             "url": {"raw": "{{baseUrl}}/api/v1/catalog/products", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "products"]}
+          }
+        },
+        {
+          "name": "Category Tree",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/catalog/categories/tree", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "categories", "tree"]}
+          }
+        },
+        {
+          "name": "Seller Brands",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/seller/brands", "host": ["{{baseUrl}}"], "path": ["api", "v1", "seller", "brands"]}
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "body": {"mode": "raw", "raw": "{\n  \"title\": \"Soft Cotton Hoodie Updated\",\n  \"category\": \"spor\",\n  \"brand\": \"TB Active\",\n  \"imageUrl\": \"https://images.example.com/products/soft-cotton-hoodie-updated.jpg\",\n  \"oldPrice\": 1099.9,\n  \"discountRate\": 15,\n  \"rating\": 4.8,\n  \"reviewCount\": 18,\n  \"color\": \"Antrasit\",\n  \"size\": \"L\",\n  \"freeCargo\": true,\n  \"price\": 934.9,\n  \"fastDelivery\": true,\n  \"sellerScore\": 9.6,\n  \"installmentText\": \"Pesin fiyatina 4 taksit\"\n}"},
+            "url": {"raw": "{{baseUrl}}/api/v1/catalog/products/{{createdProductId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "products", "{{createdProductId}}"]}
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{accessToken}}"},
+              {"key": "X-Correlation-Id", "value": "{{correlationId}}"}
+            ],
+            "url": {"raw": "{{baseUrl}}/api/v1/catalog/products/{{createdProductId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "catalog", "products", "{{createdProductId}}"]}
           }
         }
       ]

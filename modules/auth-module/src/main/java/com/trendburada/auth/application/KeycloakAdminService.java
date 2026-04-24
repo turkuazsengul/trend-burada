@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -46,6 +47,16 @@ public class KeycloakAdminService {
     }
 
     public String createUser(String email, String firstName, String lastName, String rawPassword) {
+        return createUser(email, firstName, lastName, rawPassword, RoleNames.CUSTOMER, false, false);
+    }
+
+    public String createUser(String email,
+                             String firstName,
+                             String lastName,
+                             String rawPassword,
+                             String roleName,
+                             boolean enabled,
+                             boolean emailVerified) {
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
         credential.setValue(rawPassword);
@@ -56,8 +67,8 @@ public class KeycloakAdminService {
         user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setEnabled(false);
-        user.setEmailVerified(false);
+        user.setEnabled(enabled);
+        user.setEmailVerified(emailVerified);
         user.setCredentials(List.of(credential));
 
         Response response = realm().users().create(user);
@@ -66,8 +77,58 @@ public class KeycloakAdminService {
         }
 
         String userId = CreatedResponseUtil.getCreatedId(response);
-        assignRealmRole(userId, "USER");
+        assignRealmRole(userId, roleName);
         return userId;
+    }
+
+    public void ensureRealmRole(String roleName, String description) {
+        try {
+            realm().roles().get(roleName).toRepresentation();
+        } catch (Exception ex) {
+            RoleRepresentation role = new RoleRepresentation();
+            role.setName(roleName);
+            role.setDescription(description);
+            realm().roles().create(role);
+        }
+    }
+
+    public void ensureBootstrapUser(String email,
+                                    String firstName,
+                                    String lastName,
+                                    String rawPassword,
+                                    String roleName) {
+        String normalizedEmail = email.trim().toLowerCase();
+        Optional<UserRepresentation> existing = findUserByEmail(normalizedEmail);
+        String userId;
+        if (existing.isPresent()) {
+            UserRepresentation user = existing.get();
+            user.setUsername(normalizedEmail);
+            user.setEmail(normalizedEmail);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEnabled(true);
+            user.setEmailVerified(true);
+            realm().users().get(user.getId()).update(user);
+            userId = user.getId();
+        } else {
+            userId = createUser(normalizedEmail, firstName, lastName, rawPassword, roleName, true, true);
+        }
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(rawPassword);
+        credential.setTemporary(false);
+        realm().users().get(userId).resetPassword(credential);
+        syncRealmRoles(userId, List.of(roleName));
+    }
+
+    public List<String> getRealmRoles(String userId) {
+        return realm().users().get(userId).roles().realmLevel().listAll().stream()
+                .map(RoleRepresentation::getName)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     public void markEmailVerified(String userId) {
@@ -104,6 +165,18 @@ public class KeycloakAdminService {
     private void assignRealmRole(String userId, String roleName) {
         RoleRepresentation role = realm().roles().get(roleName).toRepresentation();
         realm().users().get(userId).roles().realmLevel().add(List.of(role));
+    }
+
+    private void syncRealmRoles(String userId, List<String> desiredRoles) {
+        List<RoleRepresentation> currentRoles = realm().users().get(userId).roles().realmLevel().listAll();
+        if (!currentRoles.isEmpty()) {
+            realm().users().get(userId).roles().realmLevel().remove(currentRoles);
+        }
+
+        List<RoleRepresentation> rolesToAssign = desiredRoles.stream()
+                .map(roleName -> realm().roles().get(roleName).toRepresentation())
+                .toList();
+        realm().users().get(userId).roles().realmLevel().add(rolesToAssign);
     }
 
     private RealmResource realm() {

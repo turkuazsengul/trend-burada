@@ -8,7 +8,6 @@ import com.trendburada.auth.domain.VerificationCodeRepository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -132,7 +131,9 @@ public class AuthService {
     }
 
     private AuthenticatedUser buildUserPayload(UserRepresentation user) {
-        List<AuthenticatedUser.RoleItem> roles = List.of(new AuthenticatedUser.RoleItem("USER"));
+        List<AuthenticatedUser.RoleItem> roles = keycloakAdminService.getRealmRoles(user.getId()).stream()
+                .map(AuthenticatedUser.RoleItem::new)
+                .toList();
         return new AuthenticatedUser(
                 user.getId(),
                 user.getId(),
