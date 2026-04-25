@@ -1,5 +1,7 @@
 package com.trendburada.catalog.application;
 
+import java.util.List;
+
 public record UpdateProductRequest(
         String title,
         String category,
@@ -15,6 +17,10 @@ public record UpdateProductRequest(
         double price,
         boolean fastDelivery,
         double sellerScore,
-        String installmentText
+        String installmentText,
+        List<String> sizeOptions,
+        List<ProductColorOption> colorOptions,
+        List<String> highlights,
+        List<ProductAttribute> attributes
 ) {
 }

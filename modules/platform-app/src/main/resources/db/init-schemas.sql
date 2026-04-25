@@ -115,3 +115,34 @@ WHERE seller_email IS NULL
 ALTER TABLE IF EXISTS promotion.promotion_banners ADD COLUMN IF NOT EXISTS description VARCHAR(500)@@
 ALTER TABLE IF EXISTS promotion.promotion_banners ADD COLUMN IF NOT EXISTS block_type VARCHAR(32)@@
 ALTER TABLE IF EXISTS promotion.promotion_banners ADD COLUMN IF NOT EXISTS sort_order INTEGER@@
+
+-- ---------------------------------------------------------------------------
+-- customer.addresses
+-- Saved delivery / mailing addresses for customers. Created idempotently so
+-- this script can run on every boot (matches the rest of init-schemas.sql).
+-- The FK to customer.customers(id) is ON DELETE CASCADE so a customer wipe
+-- also removes their address rows; the partial unique index enforces
+-- "at most one default address per customer".
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS customer.addresses (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id   UUID NOT NULL REFERENCES customer.customers(id) ON DELETE CASCADE,
+    title         VARCHAR(60)  NOT NULL,
+    full_name     VARCHAR(120) NOT NULL,
+    phone         VARCHAR(30)  NOT NULL,
+    country       VARCHAR(60)  NOT NULL,
+    city          VARCHAR(60)  NOT NULL,
+    district      VARCHAR(60)  NOT NULL,
+    neighborhood  VARCHAR(80),
+    address_line  VARCHAR(500) NOT NULL,
+    postal_code   VARCHAR(20),
+    is_default    BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+)@@
+
+CREATE INDEX IF NOT EXISTS idx_addresses_customer_id
+    ON customer.addresses (customer_id)@@
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_addresses_one_default_per_customer
+    ON customer.addresses (customer_id) WHERE is_default = TRUE@@
