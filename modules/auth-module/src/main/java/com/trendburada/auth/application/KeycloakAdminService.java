@@ -37,6 +37,19 @@ public class KeycloakAdminService {
         return users.stream().findFirst();
     }
 
+    /**
+     * Returns a single page of users for pagination. Used by the customer backfill runner
+     * which walks the realm at boot to provision local customer rows for already-verified
+     * Keycloak identities. Page size is bounded so a realm with many users does not load the
+     * entire user table into memory at once.
+     *
+     * @param firstResult zero-based offset of the first user in the page
+     * @param maxResults  page size (Keycloak admin API caps this server-side, typically 100)
+     */
+    public List<UserRepresentation> listUsers(int firstResult, int maxResults) {
+        return realm().users().list(firstResult, maxResults);
+    }
+
     public Optional<UserRepresentation> findUserById(String userId) {
         try {
             UserRepresentation user = realm().users().get(userId).toRepresentation();

@@ -5,32 +5,41 @@ import com.trendburada.auth.api.BasicLoginRequest;
 import com.trendburada.auth.config.AuthVerificationProperties;
 import com.trendburada.auth.domain.VerificationCodeEntity;
 import com.trendburada.auth.domain.VerificationCodeRepository;
+import com.trendburada.customer.application.CustomerProvisioningService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
     private final KeycloakAdminService keycloakAdminService;
     private final VerificationCodeRepository verificationCodeRepository;
     private final VerificationCodeGenerator verificationCodeGenerator;
     private final VerificationMailService verificationMailService;
     private final AuthVerificationProperties verificationProperties;
+    private final CustomerProvisioningService customerProvisioningService;
 
     public AuthService(KeycloakAdminService keycloakAdminService,
                        VerificationCodeRepository verificationCodeRepository,
                        VerificationCodeGenerator verificationCodeGenerator,
                        VerificationMailService verificationMailService,
-                       AuthVerificationProperties verificationProperties) {
+                       AuthVerificationProperties verificationProperties,
+                       CustomerProvisioningService customerProvisioningService) {
         this.keycloakAdminService = keycloakAdminService;
         this.verificationCodeRepository = verificationCodeRepository;
         this.verificationCodeGenerator = verificationCodeGenerator;
         this.verificationMailService = verificationMailService;
         this.verificationProperties = verificationProperties;
+        this.customerProvisioningService = customerProvisioningService;
     }
 
     @Transactional(readOnly = true)
@@ -75,6 +84,34 @@ public class AuthService {
         keycloakAdminService.markEmailVerified(userId);
         verificationCode.setConsumedAt(OffsetDateTime.now());
         verificationCodeRepository.save(verificationCode);
+
+        // Now that the email is verified, link this Keycloak identity to a local customer row
+        // so that JWT-scoped endpoints (cart, addresses, ...) can resolve the caller. The
+        // verification_code row carries the email we sent the code to, so we use that as the
+        // source of truth — matching what the JWT will later carry as the `email` claim.
+        provisionCustomerForVerifiedUser(userId, verificationCode.getEmail());
+    }
+
+    private void provisionCustomerForVerifiedUser(String userId, String emailFromVerificationCode) {
+        // Read the Keycloak user once to get a display name. We tolerate it being unavailable
+        // (admin call could fail transiently); the provisioning service will fall back to email.
+        Optional<UserRepresentation> keycloakUser = keycloakAdminService.findUserById(userId);
+        String fullName = keycloakUser
+                .map(this::buildDisplayName)
+                .orElse(emailFromVerificationCode);
+        String email = keycloakUser
+                .map(UserRepresentation::getEmail)
+                .filter(e -> e != null && !e.isBlank())
+                .orElse(emailFromVerificationCode);
+
+        try {
+            customerProvisioningService.ensureCustomer(email, fullName);
+        } catch (RuntimeException ex) {
+            // Provisioning failure must NOT roll back email verification. Log loudly so ops
+            // sees it; the startup backfill runner will pick this user up on the next boot.
+            log.error("Customer provisioning failed for verified user {} ({}): {}",
+                    userId, email, ex.getMessage(), ex);
+        }
     }
 
     @Transactional

@@ -57,5 +57,15 @@
             <artifactId>shared-kernel</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <!--
+                Auth-module needs to provision a customer row when an email is verified, via
+                CustomerProvisioningService. This adds a one-way auth → customer dependency;
+                customer-module does NOT depend back on auth-module, so there is no cycle.
+            -->
+            <groupId>com.trendburada</groupId>
+            <artifactId>customer-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
