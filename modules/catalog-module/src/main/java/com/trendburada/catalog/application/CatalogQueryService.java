@@ -4,9 +4,11 @@ import com.trendburada.catalog.domain.ProductEntity;
 import com.trendburada.catalog.domain.ProductRepository;
 import com.trendburada.shared.PagedResult;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.security.access.AccessDeniedException;
@@ -208,6 +210,10 @@ public class CatalogQueryService {
         entity.setFastDelivery(request.fastDelivery());
         entity.setSellerScore(request.sellerScore());
         entity.setInstallmentText(request.installmentText());
+        entity.setSizeOptionsJson(encodeStringList(request.sizeOptions()));
+        entity.setColorOptionsJson(encodeColorOptions(request.colorOptions()));
+        entity.setHighlightsJson(encodeStringList(request.highlights()));
+        entity.setAttributesJson(encodeAttributes(request.attributes()));
     }
 
     private void apply(ProductEntity entity, UpdateProductRequest request) {
@@ -226,6 +232,10 @@ public class CatalogQueryService {
         entity.setFastDelivery(request.fastDelivery());
         entity.setSellerScore(request.sellerScore());
         entity.setInstallmentText(request.installmentText());
+        entity.setSizeOptionsJson(encodeStringList(request.sizeOptions()));
+        entity.setColorOptionsJson(encodeColorOptions(request.colorOptions()));
+        entity.setHighlightsJson(encodeStringList(request.highlights()));
+        entity.setAttributesJson(encodeAttributes(request.attributes()));
     }
 
     private String generateProductCode(String category, String title) {
@@ -346,6 +356,54 @@ public class CatalogQueryService {
 
     private String decode(String value) {
         return URLDecoder.decode(value, StandardCharsets.UTF_8);
+    }
+
+    private String encodeStringList(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        return values.stream()
+                .filter(item -> item != null && !item.isBlank())
+                .map(this::encode)
+                .reduce((left, right) -> left + "||" + right)
+                .orElse("");
+    }
+
+    private String encodeColorOptions(List<ProductColorOption> values) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        return values.stream()
+                .filter(item -> item != null)
+                .map(item -> Map.of(
+                        "name", item.name() == null ? "" : item.name(),
+                        "image", item.image() == null ? "" : item.image()
+                ))
+                .map(value -> encode(value.get("name")) + "::" + encode(value.get("image")))
+                .reduce((left, right) -> left + "||" + right)
+                .orElse("");
+    }
+
+    private String encodeAttributes(List<ProductAttribute> values) {
+        if (values == null || values.isEmpty()) {
+            return "";
+        }
+
+        return values.stream()
+                .filter(item -> item != null)
+                .map(item -> Map.of(
+                        "label", item.label() == null ? "" : item.label(),
+                        "value", item.value() == null ? "" : item.value()
+                ))
+                .map(value -> encode(value.get("label")) + "::" + encode(value.get("value")))
+                .reduce((left, right) -> left + "||" + right)
+                .orElse("");
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
 
     private List<FacetOption> buildOptions(List<ProductEntity> products, java.util.function.Function<ProductEntity, String> getter) {
