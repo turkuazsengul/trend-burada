@@ -1,0 +1,55 @@
+.address-items{
+    display: flex;
+}
+
+.address-item{
+    margin: 1rem;
+}
+
+.address-card{
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    height: 100%;
+    border: 1px solid #e6e6e6;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: left;
+    gap: 2rem;
+}
+
+.address-card-content{
+    display: grid;
+    grid-row: 1 / 4;
+    grid-template-rows: repeat(5, 1fr);
+    gap: 1rem;
+}
+
+.address-card-footer{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    height: 100%;
+}
+
+.address-card-footer .card-delete-button{
+    text-align: left;
+}
+
+.address-title{
+    font-size: 15px;
+    font-weight: bold;
+    color: #646f81;
+}
+
+.address-owner{
+    font-size: 15px;
+    font-weight: bold;
+    color: #646f81;
+}
+
+.address-desc{
+    font-size: 12px;
+}
+
+.address-card .address-owner-phone{
+    font-size: 12px;
+}

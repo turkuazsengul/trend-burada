@@ -1,0 +1,45 @@
+.base-dialog{
+    display:flex;
+    flex-direction: row;
+    /*justify-content: space-evenly;*/
+    /*height: 70%;*/
+    /*width: 70%;*/
+}
+
+.base-dialog .p-dialog {
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.2);
+}
+
+.base-dialog .p-dialog .p-dialog-header {
+    padding: 1.45rem 1.6rem 1rem;
+    border-bottom: 1px solid #edf1f7;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfcff 100%);
+}
+
+.p-dialog .p-dialog-header .p-dialog-title {
+    font-size: 1.7rem;
+    text-align: left;
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.base-dialog .p-dialog .p-dialog-content {
+    padding: 1.4rem 1.6rem 1.7rem;
+    background: #ffffff;
+}
+
+.base-dialog .p-dialog .p-dialog-header-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.base-dialog .p-dialog .p-dialog-header-icon:hover {
+    background: #f3f5fa;
+    color: #334155;
+}
+

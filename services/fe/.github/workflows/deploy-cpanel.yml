@@ -1,0 +1,117 @@
+name: Deploy To cPanel (FTP)
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: cpanel-deploy
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      REACT_APP_KEYCLOAK_BASE_URL: ${{ secrets.REACT_APP_KEYCLOAK_BASE_URL }}
+      REACT_APP_KEYCLOAK_TOKEN_URL: ${{ secrets.REACT_APP_KEYCLOAK_TOKEN_URL }}
+      REACT_APP_USER_SERVICE_BASE_URL: ${{ secrets.REACT_APP_USER_SERVICE_BASE_URL }}
+      REACT_APP_LOGIN_URL: ${{ secrets.REACT_APP_LOGIN_URL }}
+      REACT_APP_USER_INFO_URL: ${{ secrets.REACT_APP_USER_INFO_URL }}
+      REACT_APP_USER_UPDATE_URL: ${{ secrets.REACT_APP_USER_UPDATE_URL }}
+      REACT_APP_REGISTER_URL: ${{ secrets.REACT_APP_REGISTER_URL }}
+      REACT_APP_REGISTER_CONFIRM_URL: ${{ secrets.REACT_APP_REGISTER_CONFIRM_URL }}
+      REACT_APP_REGISTER_CREATE_CONFIRM_URL: ${{ secrets.REACT_APP_REGISTER_CREATE_CONFIRM_URL }}
+      REACT_APP_LOGOUT_URL: ${{ secrets.REACT_APP_LOGOUT_URL }}
+      REACT_APP_KEYCLOAK_CLIENT_ID: ${{ secrets.REACT_APP_KEYCLOAK_CLIENT_ID }}
+      REACT_APP_KEYCLOAK_GRANT_TYPE: ${{ secrets.REACT_APP_KEYCLOAK_GRANT_TYPE }}
+      REACT_APP_MY_USER_INFO_URL: ${{ secrets.REACT_APP_MY_USER_INFO_URL }}
+      REACT_APP_MY_ORDER_URL: ${{ secrets.REACT_APP_MY_ORDER_URL }}
+      REACT_APP_MY_ADDRESS_URL: ${{ secrets.REACT_APP_MY_ADDRESS_URL }}
+      REACT_APP_USE_DEMO_LOCAL_AUTH: ${{ secrets.REACT_APP_USE_DEMO_LOCAL_AUTH }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build for cPanel
+        run: CI=false npm run build:cpanel
+
+      - name: Add deploy marker
+        run: |
+          echo "deployed-at=$(date -u +"%Y-%m-%d %H:%M:%S UTC")" > build/deploy-check.txt
+          echo "commit=${GITHUB_SHA}" >> build/deploy-check.txt
+          echo "branch=${GITHUB_REF_NAME}" >> build/deploy-check.txt
+          cat build/deploy-check.txt
+
+      - name: Create deploy zip
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-8)
+          mkdir -p deploy-package
+          ZIP_NAME="trendburada-v${VERSION}-${SHORT_SHA}.zip"
+          (cd build && zip -r "../deploy-package/${ZIP_NAME}" .)
+          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+
+      - name: Debug build output
+        run: |
+          echo "Deploy target dir: ${{ secrets.FTP_SERVER_DIR }}"
+          ls -la deploy-package | sed -n '1,200p'
+          echo "Zip file: ${ZIP_NAME}"
+
+      - name: Upload deploy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpanel-zip
+          path: deploy-package/
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 20
+
+    steps:
+      - name: Download deploy artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cpanel-zip
+          path: deploy-package/
+
+      - name: Validate FTP target directory
+        run: |
+          if [ -z "${{ secrets.FTP_SERVER_DIR }}" ]; then
+            echo "FTP_SERVER_DIR is empty"
+            exit 1
+          fi
+          case "${{ secrets.FTP_SERVER_DIR }}" in
+            */) echo "FTP_SERVER_DIR ok: ${{ secrets.FTP_SERVER_DIR }}" ;;
+            *) echo "FTP_SERVER_DIR must end with /"; exit 1 ;;
+          esac
+
+      - name: Deploy build via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./deploy-package/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          dangerous-clean-slate: false
