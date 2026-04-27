@@ -1,11 +1,18 @@
 package com.trendburada.catalog.domain;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -68,17 +75,64 @@ public class ProductEntity {
     @Column(length = 64)
     private String installmentText;
 
+    /**
+     * @deprecated since TB-09. Replaced by {@link #sizeOptions}. Kept on the
+     * entity (and in the DB) so the one-shot {@code ProductOptionsBackfill}
+     * listener can read historical rows during the transition; a follow-up
+     * migration will drop the column once the backfill is verified.
+     */
+    @Deprecated
     @Column(columnDefinition = "TEXT")
     private String sizeOptionsJson;
 
+    /** @deprecated see {@link #sizeOptionsJson}. */
+    @Deprecated
     @Column(columnDefinition = "TEXT")
     private String colorOptionsJson;
 
+    /** @deprecated see {@link #sizeOptionsJson}. */
+    @Deprecated
     @Column(columnDefinition = "TEXT")
     private String highlightsJson;
 
+    /** @deprecated see {@link #sizeOptionsJson}. */
+    @Deprecated
     @Column(columnDefinition = "TEXT")
     private String attributesJson;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            schema = "catalog",
+            name = "product_size_options",
+            joinColumns = @JoinColumn(name = "product_id"))
+    @OrderColumn(name = "position")
+    @Column(name = "value", nullable = false, length = 64)
+    private List<String> sizeOptions = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            schema = "catalog",
+            name = "product_color_options",
+            joinColumns = @JoinColumn(name = "product_id"))
+    @OrderColumn(name = "position")
+    private List<ProductColorOptionEmbeddable> colorOptions = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            schema = "catalog",
+            name = "product_highlights",
+            joinColumns = @JoinColumn(name = "product_id"))
+    @OrderColumn(name = "position")
+    @Column(name = "value", nullable = false, length = 255)
+    private List<String> highlights = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            schema = "catalog",
+            name = "product_attributes",
+            joinColumns = @JoinColumn(name = "product_id"))
+    @OrderColumn(name = "position")
+    private List<ProductAttributeEmbeddable> attributes = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -282,5 +336,37 @@ public class ProductEntity {
 
     public void setAttributesJson(String attributesJson) {
         this.attributesJson = attributesJson;
+    }
+
+    public List<String> getSizeOptions() {
+        return sizeOptions;
+    }
+
+    public void setSizeOptions(List<String> sizeOptions) {
+        this.sizeOptions = sizeOptions == null ? new ArrayList<>() : sizeOptions;
+    }
+
+    public List<ProductColorOptionEmbeddable> getColorOptions() {
+        return colorOptions;
+    }
+
+    public void setColorOptions(List<ProductColorOptionEmbeddable> colorOptions) {
+        this.colorOptions = colorOptions == null ? new ArrayList<>() : colorOptions;
+    }
+
+    public List<String> getHighlights() {
+        return highlights;
+    }
+
+    public void setHighlights(List<String> highlights) {
+        this.highlights = highlights == null ? new ArrayList<>() : highlights;
+    }
+
+    public List<ProductAttributeEmbeddable> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<ProductAttributeEmbeddable> attributes) {
+        this.attributes = attributes == null ? new ArrayList<>() : attributes;
     }
 }
