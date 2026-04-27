@@ -4,26 +4,23 @@ import com.trendburada.customer.domain.CustomerEntity;
 import com.trendburada.customer.domain.CustomerRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Read + write surface for customer profile data.
+ * Read + write surface for the JWT-scoped customer profile.
  *
- * <p>Two distinct call patterns live here:
- * <ul>
- *   <li>The legacy {@code /profile} / {@code /profiles} debug endpoints (controller-supplied
- *       email or no scoping at all). These are kept for backwards compatibility with the
- *       admin tooling and intentionally bypass JWT scoping.</li>
- *   <li>The JWT-scoped {@link #getMe(CustomerEntity)} / {@link #patchMe(CustomerEntity, CustomerProfileUpdateRequest)}
- *       pair that powers {@code GET|PATCH /api/v1/customer/me}. The controller is responsible
- *       for resolving the calling customer via {@code AuthenticatedCustomerResolver} and
- *       passing the entity in &mdash; the service never reads the SecurityContext directly,
- *       same convention as {@code AddressService}.</li>
- * </ul>
+ * <p>The service exposes only the {@link #getMe(CustomerEntity)} /
+ * {@link #patchMe(CustomerEntity, CustomerProfileUpdateRequest)} pair that powers
+ * {@code GET|PATCH /api/v1/customer/me}. The controller resolves the calling customer via
+ * {@code AuthenticatedCustomerResolver} and passes the entity in &mdash; the service never
+ * reads the SecurityContext directly, same convention as {@code AddressService}.
+ *
+ * <p>The previous unscoped debug endpoints ({@code /profile}, {@code /profiles},
+ * {@code POST /profiles}) were removed because they leaked PII to any authenticated
+ * caller (they were not behind an admin role guard).
  */
 @Service
 public class CustomerQueryService {
@@ -35,33 +32,6 @@ public class CustomerQueryService {
 
     public CustomerQueryService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
-    }
-
-    public CustomerProfileSummary getProfile() {
-        return customerRepository.findAll().stream()
-                .findFirst()
-                .map(this::map)
-                .orElse(null);
-    }
-
-    public CustomerProfileSummary getProfileByEmail(String email) {
-        return customerRepository.findByEmail(email)
-                .map(this::map)
-                .orElse(null);
-    }
-
-    public List<CustomerProfileSummary> getProfiles() {
-        return customerRepository.findAll().stream().map(this::map).toList();
-    }
-
-    public CustomerProfileSummary create(CreateCustomerRequest request) {
-        CustomerEntity entity = new CustomerEntity();
-        entity.setCustomerCode("cust-" + System.currentTimeMillis());
-        entity.setFullName(request.fullName());
-        entity.setEmail(request.email());
-        entity.setSegment(request.segment());
-        entity.setPreferredCategory(request.preferredCategory());
-        return map(customerRepository.save(entity));
     }
 
     /**
