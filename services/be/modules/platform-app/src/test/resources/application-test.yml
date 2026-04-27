@@ -1,0 +1,36 @@
+# Profile loaded by integration tests via @ActiveProfiles("test").
+#
+# Goals:
+#   - Don't try to import config from a remote config server.
+#   - Don't try to bootstrap Keycloak or fetch JWKs from a real Keycloak.
+#     The base test class provides a stub JwtDecoder bean instead, so the
+#     OAuth2 resource server auto-config bean is shadowed and the
+#     issuer-uri is never probed.
+#   - DataSource URL / username / password come from the Postgres
+#     Testcontainer, wired via @ServiceConnection on the base class.
+spring:
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# Bootstraps that talk to external systems are no-ops in tests because
+# they catch exceptions and log warnings, but we still avoid the network
+# round-trip by pointing the URLs at unreachable localhost ports — saves
+# the boot-time startup delay.
+app:
+  auth:
+    keycloak:
+      base-url: http://localhost:1
+      admin-username: admin
+      admin-password: admin
+      client-id: trend-burada-web
+      client-secret: ""
