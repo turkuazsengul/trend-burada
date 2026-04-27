@@ -1,0 +1,16 @@
+-- Flyway baseline.
+--
+-- Schema ownership currently sits with Hibernate (ddl-auto=update) plus
+-- the legacy classpath:db/init-schemas.sql script wired through
+-- spring.sql.init. This V1 is intentionally empty: it marks the cut-over
+-- point so future structural changes can ship as proper Flyway migrations
+-- (V2, V3, ...) without disturbing existing databases.
+--
+-- For environments that already contain the live schema, Flyway is
+-- configured with baseline-on-migrate=true / baseline-version=1 so this
+-- file is recorded as the baseline without being executed. Fresh
+-- environments still get their schema from Hibernate + init-schemas.sql,
+-- and Flyway only takes over from V2 onwards.
+--
+-- The full takeover (entity-derived V1 schema + ddl-auto=validate +
+-- removal of init-schemas.sql) is tracked as a follow-up.
