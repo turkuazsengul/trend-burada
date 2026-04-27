@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-app:5432/trend_burada_app
+    username: trend
+    password: trend
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  mail:
+    host: mailpit
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000,http://trendburada.local,http://seller.trendburada.local,http://admin.trendburada.local,http://app.trendburada.local
+  auth:
+    keycloak:
+      base-url: http://keycloak:8080
+      admin-username: admin
+      admin-password: admin
+      client-secret:

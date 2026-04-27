@@ -1,0 +1,244 @@
+.register-confirm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    width: min(100%, 54rem);
+    padding: 0.4rem 0 0.2rem;
+}
+
+.register-confirm-hero {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.35rem 1.45rem;
+    border-radius: 16px;
+    border: 1px solid #e8ecf4;
+    background:
+        radial-gradient(circle at top right, rgba(128, 54, 235, 0.12), transparent 34%),
+        linear-gradient(135deg, #fff9fb 0%, #ffffff 58%, #f7f8ff 100%);
+}
+
+.register-confirm-icon-wrap {
+    width: 5.6rem;
+    height: 5.6rem;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #eeaec3, #8036eb);
+    box-shadow: 0 16px 30px rgba(128, 54, 235, 0.2);
+    flex: 0 0 auto;
+}
+
+.register-confirm-icon {
+    font-size: 2rem !important;
+    color: #ffffff;
+}
+
+.register-confirm-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.register-confirm-badge {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 2.4rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    background: rgba(128, 54, 235, 0.08);
+    color: #7c3aed;
+    font-size: 1.04rem;
+    font-weight: 700;
+}
+
+.register-confirm-copy h3 {
+    margin: 0;
+    font-size: 1.7rem;
+    line-height: 1.25;
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.register-confirm-copy p {
+    margin: 0;
+    font-size: 1.12rem;
+    line-height: 1.65;
+    color: #5f6c80;
+}
+
+.register-confirm-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    padding: 1.4rem;
+    border-radius: 16px;
+    border: 1px solid #e6ebf3;
+    background: #ffffff;
+}
+
+.register-confirm-info-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.register-confirm-info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem 1.05rem;
+    border-radius: 12px;
+    background: #fbfcfe;
+    border: 1px solid #e5ebf3;
+}
+
+.register-confirm-info-label {
+    font-size: 1.02rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.register-confirm-info-card strong {
+    font-size: 1.18rem;
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.register-confirm-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.register-confirm-field label {
+    margin-bottom: 0.65rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #334155;
+    text-align: left;
+}
+
+.register-confirm-field .p-inputtext {
+    height: 4.4rem;
+    border-radius: 10px;
+    border: 1px solid #d6dee9;
+    background: #fbfcfe;
+    font-size: 1.26rem;
+}
+
+.register-confirm-field .p-inputtext:enabled:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+.register-confirm-helper {
+    margin-top: 0.75rem;
+    font-size: 1.04rem;
+    line-height: 1.55;
+    color: #64748b;
+    text-align: left;
+}
+
+.register-confirm-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 4.4rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 0.8rem 1rem;
+}
+
+.register-confirm-alert.is-error {
+    background: #fff4f6;
+    color: #d7293e;
+    border-color: #f1b7c0;
+}
+
+.register-confirm-alert.is-success {
+    background: #effcf5;
+    color: #0f8a4b;
+    border-color: #a9e4c4;
+}
+
+.register-confirm-alert label {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.register-confirm-demo-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 1rem 1.05rem;
+    border-radius: 12px;
+    border: 1px dashed #c9b5ff;
+    background:
+        radial-gradient(circle at top right, rgba(128, 54, 235, 0.08), transparent 36%),
+        #faf7ff;
+}
+
+.register-confirm-demo-label {
+    font-size: 1rem;
+    color: #7c3aed;
+    font-weight: 700;
+}
+
+.register-confirm-demo-card strong {
+    font-size: 1.9rem;
+    line-height: 1;
+    color: #4c1d95;
+    letter-spacing: 0.14em;
+}
+
+.register-confirm-demo-card p {
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    color: #5f6c80;
+}
+
+.register-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+}
+
+.register-confirm-submit {
+    height: 4.5rem;
+    border-radius: 10px !important;
+    border: 0 !important;
+    background: linear-gradient(45deg, #eeaec3, #8036eb) !important;
+    font-size: 1.28rem !important;
+    font-weight: 700 !important;
+}
+
+.register-confirm-secondary {
+    height: 4.4rem;
+    border-radius: 10px !important;
+    border: 1px solid #dbe2ee !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+    font-size: 1.16rem !important;
+    font-weight: 700 !important;
+}
+
+.register-confirm-secondary:hover {
+    background: #f8fafc !important;
+}
+
+@media (max-width: 640px) {
+    .register-confirm-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .register-confirm-info-row {
+        grid-template-columns: 1fr;
+    }
+}

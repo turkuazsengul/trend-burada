@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  architecture:
+    mode: modular-monolith
+    ai-boundary: external-python-service-ready
+  cors:
+    allowed-origins: http://localhost:3000,http://trendburada.local,http://seller.trendburada.local,http://admin.trendburada.local,http://app.trendburada.local
+  auth:
+    verification:
+      code-length: 6
+      expiry-minutes: 10
+      sender-name: TrendBurada
+      sender-email: no-reply@trendburada.local
+    keycloak:
+      realm: trend-burada
+      client-id: trend-burada-web
+      direct-grant-type: password

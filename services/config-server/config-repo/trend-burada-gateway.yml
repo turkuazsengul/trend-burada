@@ -1,0 +1,79 @@
+server:
+  port: 8090
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/trend-burada
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - http://localhost:3000
+              - http://trendburada.local
+              - http://seller.trendburada.local
+              - http://admin.trendburada.local
+              - http://app.trendburada.local
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+      routes:
+        - id: platform-auth
+          uri: http://app:8080
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: platform-api
+          uri: http://app:8080
+          predicates:
+            - Path=/api/v1/**,/api/home/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@userOrIpKeyResolver}"
+            - name: Retry
+              args:
+                retries: 2
+                methods: GET,POST
+                statuses: BAD_GATEWAY,GATEWAY_TIMEOUT,SERVICE_UNAVAILABLE
+            - name: CircuitBreaker
+              args:
+                name: platformCircuitBreaker
+                fallbackUri: forward:/fallback/platform
+        - id: actuator-health
+          uri: http://app:8080
+          predicates:
+            - Path=/actuator/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      platformCircuitBreaker:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        wait-duration-in-open-state: 10s
+        failure-rate-threshold: 50

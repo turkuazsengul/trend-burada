@@ -1,5 +1,46 @@
-target/
+# --- IDE / OS ---
 .idea/
-.DS_Store
 *.iml
+.vscode/
+.DS_Store
+Thumbs.db
+.attach_pid*
+
+# --- Claude Code ---
+.claude/
+
+# --- Java / Maven ---
+target/
 .mvn/wrapper/maven-wrapper.jar
+
+# --- Node / npm / pnpm ---
+node_modules/
+build/
+dist/
+.npm
+.pnpm-store/
+.parcel-cache/
+.yarn/cache
+.yarn/install-state.gz
+
+# --- Env (template is checked in via .env.example) ---
+.env
+infra/.env
+**/infra/.env
+.env.local
+.env.*.local
+
+# --- Test / coverage ---
+coverage/
+*.lcov
+test-results/
+junit.xml
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# --- Docker volumes (not actually written here, but defensive) ---
+postgres_app_data/
+postgres_keycloak_data/

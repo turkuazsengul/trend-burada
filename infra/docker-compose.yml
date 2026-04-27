@@ -1,43 +1,27 @@
+# TrendBurada — meta-stack docker-compose
+#
+# Brings up the FULL system: postgres (app + keycloak), keycloak, redis, mailpit,
+# config-server, gateway, backend, frontend. One command (`make up`) starts everything;
+# `make health` polls each service's health endpoint and reports green/red.
+#
+# Service / port map (host → container):
+#   web (FE)              http://localhost:3000   → nginx :80
+#   gateway               http://localhost:8090   → :8090
+#   backend (app)         http://localhost:8080   → :8080
+#   config-server         http://localhost:8888   → :8888
+#   keycloak              http://localhost:8081   → :8080
+#   mailpit (smtp UI)     http://localhost:8025   → :8025  (smtp on 1025)
+#   postgres-app          localhost:5432          → :5432
+#   postgres-keycloak     localhost:5433          → :5432
+#   redis                 localhost:6379          → :6379
+#
+# Conventions:
+# - Build contexts use `../services/<name>` because the compose file lives in `infra/`.
+# - The .env file at infra/.env feeds backend secrets; copy infra/.env.example to start.
+# - Healthchecks are defined for every service so depends_on can wait for `healthy`,
+#   not just `started` — this avoids the classic "gateway up before keycloak" race.
+
 services:
-  config-server:
-    build:
-      context: ../../trend-burada-config-server
-      dockerfile: Dockerfile
-    container_name: trend-burada-config-server
-    environment:
-      SPRING_PROFILES_ACTIVE: native
-    ports:
-      - "8888:8888"
-
-  gateway:
-    build:
-      context: ../../trend-burada-gateway
-      dockerfile: Dockerfile
-    container_name: trend-burada-gateway
-    environment:
-      CONFIG_SERVER_URI: http://config-server:8888
-      SPRING_PROFILES_ACTIVE: docker
-      GATEWAY_JWT_ISSUER_URI: http://keycloak:8080/realms/trend-burada
-      GATEWAY_REDIS_HOST: redis
-      GATEWAY_REDIS_PORT: 6379
-    ports:
-      - "8090:8090"
-    depends_on:
-      - config-server
-      - app
-      - redis
-
-  web:
-    build:
-      context: ../../trend-burada-web
-      dockerfile: Dockerfile
-    container_name: trend-burada-web
-    env_file:
-      - ../../trend-burada-web/.env.compose
-    ports:
-      - "3000:80"
-    depends_on:
-      - gateway
 
   postgres-app:
     image: postgres:16
@@ -50,6 +34,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_app_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trend -d trend_burada_app"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   postgres-keycloak:
     image: postgres:16
@@ -62,6 +51,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres_keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.6
@@ -76,29 +70,65 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
+      KC_HEALTH_ENABLED: "true"
     ports:
       - "8081:8080"
     volumes:
+      # Same shared realm export the BE used to keep in its own infra/. Kept at the
+      # top-level infra/keycloak/ now so gateway and BE see the same source of truth.
       - ./keycloak/trend-burada-realm.json:/opt/keycloak/data/import/trend-burada-realm.json:ro
     depends_on:
-      - postgres-keycloak
-
-  mailpit:
-    image: axllent/mailpit:latest
-    container_name: trend-burada-mailpit
-    ports:
-      - "1025:1025"
-      - "8025:8025"
+      postgres-keycloak:
+        condition: service_healthy
+    healthcheck:
+      # Plain TCP check on 8080 — Keycloak's /health endpoint moves between releases
+      # and we don't want a flake here to cascade through depends_on.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   redis:
     image: redis:7
     container_name: trend-burada-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: trend-burada-mailpit
+    ports:
+      - "1025:1025"   # smtp
+      - "8025:8025"   # web UI
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8025/api/v1/info >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  config-server:
+    build:
+      context: ../services/config-server
+      dockerfile: Dockerfile
+    container_name: trend-burada-config-server
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
   app:
     build:
-      context: ..
+      context: ../services/be
       dockerfile: infra/Dockerfile
     container_name: trend-burada-app
     env_file:
@@ -132,11 +162,64 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - config-server
-      - postgres-app
-      - keycloak
-      - mailpit
+      config-server:
+        condition: service_healthy
+      postgres-app:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
+  gateway:
+    build:
+      context: ../services/gateway
+      dockerfile: Dockerfile
+    container_name: trend-burada-gateway
+    environment:
+      CONFIG_SERVER_URI: http://config-server:8888
+      SPRING_PROFILES_ACTIVE: docker
+      GATEWAY_JWT_ISSUER_URI: http://keycloak:8080/realms/trend-burada
+      GATEWAY_REDIS_HOST: redis
+      GATEWAY_REDIS_PORT: 6379
+    ports:
+      - "8090:8090"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8090/actuator/health | grep -q UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  web:
+    build:
+      context: ../services/fe
+      dockerfile: Dockerfile
+    container_name: trend-burada-web
+    env_file:
+      - ../services/fe/.env.compose
+    ports:
+      - "3000:80"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      # FE container is just nginx serving the React build; a 200 on / is enough.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
 volumes:
   postgres_app_data:

@@ -1,0 +1,35 @@
+.tool-tip-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    background-color: #ffffff;
+    border: 0.1rem solid #b1b0b0;
+    margin: -1rem -3rem -3rem;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.content-item {
+    margin: 1rem;
+}
+
+.content-item .content a {
+    margin: 1rem;
+    font-size: 13px;
+    color: #646f81;
+    font-style: revert;
+}
+
+.content-header {
+    font-size: 13px;
+    font-weight: bold;
+    color: #c57cf1;
+    font-style: revert;
+    text-align: center;
+}
+
+.content:hover {
+    border-radius: 7px;
+    background-color: rgba(228, 208, 229, 0.68);
+}
+
