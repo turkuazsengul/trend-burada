@@ -216,10 +216,40 @@ services:
         condition: service_healthy
     healthcheck:
       # FE container is just nginx serving the React build; a 200 on / is enough.
-      test: ["CMD-SHELL", "wget -qO- http://localhost:80/ >/dev/null || exit 1"]
+      # Use 127.0.0.1 explicitly: this nginx-alpine image's musl resolver gives
+      # `localhost` -> ::1 first, but nginx listens only on 0.0.0.0:80, so the
+      # healthcheck's wget gets ECONNREFUSED. IPv4 literal sidesteps the dual-stack
+      # mismatch.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/ >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
+
+  # Hostname-based fan-out on port 80 for the local dev stack:
+  #   trendburada.local        -> web (FE customer shell)
+  #   seller.trendburada.local -> web (seller shell, FE distinguishes by Host)
+  #   admin.trendburada.local  -> web (admin shell, ditto)
+  #   api.trendburada.local    -> gateway
+  # Requires matching /etc/hosts entries on the host (see infra/nginx/local-proxy.conf).
+  # A separate compose at services/fe/infra/local-proxy/ keeps working for the
+  # FE-on-host (npm start) flow that targets host.docker.internal:3000.
+  proxy:
+    image: nginx:stable-alpine
+    container_name: trend-burada-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/local-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- --header 'Host: trendburada.local' http://127.0.0.1/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_app_data:
