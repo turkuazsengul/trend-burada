@@ -1,6 +1,7 @@
 {
   "realm": "trend-burada",
   "enabled": true,
+  "sslRequired": "NONE",
   "roles": {
     "realm": [
       {
