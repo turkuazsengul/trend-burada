@@ -13,16 +13,14 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:trend}
   jpa:
     hibernate:
-      ddl-auto: update
+      # Schema is now owned by Flyway migrations under classpath:db/migration.
+      # `validate` makes Hibernate fail-fast on entity/DB drift instead of
+      # silently issuing ALTERs at boot.
+      ddl-auto: validate
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
-  sql:
-    init:
-      mode: always
-      separator: "@@"
-      schema-locations: classpath:db/init-schemas.sql
   flyway:
     enabled: true
     locations: classpath:db/migration
