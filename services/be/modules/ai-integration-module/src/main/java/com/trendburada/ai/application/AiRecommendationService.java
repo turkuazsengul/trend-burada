@@ -2,25 +2,19 @@ package com.trendburada.ai.application;
 
 import com.trendburada.catalog.application.CatalogQueryService;
 import com.trendburada.catalog.application.ProductSummary;
-import com.trendburada.customer.application.CustomerProfileSummary;
-import com.trendburada.customer.application.CustomerQueryService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AiRecommendationService {
 
-    private final CustomerQueryService customerQueryService;
     private final CatalogQueryService catalogQueryService;
 
-    public AiRecommendationService(CustomerQueryService customerQueryService,
-                                   CatalogQueryService catalogQueryService) {
-        this.customerQueryService = customerQueryService;
+    public AiRecommendationService(CatalogQueryService catalogQueryService) {
         this.catalogQueryService = catalogQueryService;
     }
 
-    public AiRecommendationResponse recommend(AiRecommendationRequest request) {
-        CustomerProfileSummary customer = customerQueryService.getProfile();
+    public AiRecommendationResponse recommend(AiRecommendationRequest request, String callerFullName) {
         List<String> productIds = catalogQueryService.getFeaturedProducts().stream()
                 .filter(product -> matchesCategory(request.category(), product))
                 .map(ProductSummary::id)
@@ -28,7 +22,7 @@ public class AiRecommendationService {
                 .toList();
 
         String summary = "Selected for %s using %s style and %s usage."
-                .formatted(customer.fullName(), request.style(), request.usage());
+                .formatted(callerFullName, request.style(), request.usage());
 
         return new AiRecommendationResponse("RULE_BASED_PLACEHOLDER", summary, productIds);
     }
